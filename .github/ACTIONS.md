@@ -7,7 +7,7 @@ This repository uses GitHub Actions for automated validation and deployment.
 Configure these secrets in GitHub repository settings (`Settings > Secrets and variables > Actions`):
 
 ### ArgoCD Integration
-- `ARGOCD_SERVER`: ArgoCD server URL (e.g., `argocd.dev.example.com`)
+- `ARGOCD_SERVER`: ArgoCD server URL (e.g., `argocd.dev.client-box.com`) done
 - `ARGOCD_AUTH_TOKEN`: ArgoCD authentication token
 
 #### How to Get ArgoCD Token
@@ -36,13 +36,28 @@ az ad sp create-for-rbac --name "github-actions-gitops" \
 
 ### Microsoft Teams (Optional)
 For deployment notifications:
-- `TEAMS_WEBHOOK_URL`: Microsoft Teams incoming webhook URL
+- `TEAMS_WEBHOOK_URL`: Microsoft Teams incoming webhook URL   done
 
-#### How to Get Teams Webhook
+#### How to Get Teams Webhook (Updated for 2025)
+
+**Method 1: Workflows (Recommended)**
 1. Open Teams channel
-2. Click `...` > `Connectors`
-3. Configure `Incoming Webhook`
-4. Copy webhook URL
+2. Click `...` (More options) > `Workflows`
+3. Search for "Post to a channel when a webhook request is received"
+4. Click **Add workflow**
+5. Select the team and channel
+6. Copy the webhook URL provided
+7. Click **Add workflow**
+
+**Method 2: Power Automate (Enterprise)**
+1. Go to https://make.powerautomate.com
+2. Create new flow: **Automated cloud flow**
+3. Select trigger: "When a HTTP request is received"
+4. Add action: "Post message in a chat or channel" (Teams)
+5. Configure channel and message format
+6. Save and copy the HTTP POST URL
+
+**Note**: The legacy "Incoming Webhook" connector is deprecated. Use Workflows for new integrations.
 
 ---
 

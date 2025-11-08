@@ -7,9 +7,9 @@ metadata:
 spec:
   project: platform
   source:
-    chart: kubescape-operator
-    repoURL: https://aquasecurity.github.io/helm-charts/
-    targetRevision: 1.18.0
+    chart: kubescape-cloud-operator
+    repoURL: https://kubescape.github.io/helm-charts/
+    targetRevision: 1.14.5
     helm:
       releaseName: kubescape
       valuesObject:
