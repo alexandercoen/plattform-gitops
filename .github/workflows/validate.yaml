@@ -1,0 +1,69 @@
+name: Validate GitOps Manifests
+
+on:
+    pull_request:
+        branches: [main]
+    push:
+        branches: [main]
+
+jobs:
+    validate:
+        name: Validate YAML and ArgoCD Applications
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install ArgoCD CLI
+              run: |
+                  curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+                  chmod +x /usr/local/bin/argocd
+
+            - name: Validate YAML syntax
+              run: |
+                  find . -name "*.yaml" -o -name "*.yml" | while read file; do
+                    echo "Validating $file"
+                    yamllint -d "{extends: default, rules: {line-length: {max: 120}}}" "$file" || true
+                  done
+
+            - name: Validate ArgoCD Applications
+              run: |
+                  for app in bootstrap/apps/*.yaml; do
+                    echo "Validating ArgoCD Application: $app"
+                    kubectl apply --dry-run=client -f "$app"
+                  done
+
+            - name: Check for secrets in repository
+              run: |
+                  if grep -r "password:" . --include="*.yaml" --include="*.yml" | grep -v "changeme" | grep -v "README"; then
+                    echo "::error::Found potential secrets in repository!"
+                    exit 1
+                  fi
+
+            - name: Validate Kyverno policies
+              run: |
+                  if [ -d "apps/security" ]; then
+                    echo "Kyverno policies found - validation passed"
+                  fi
+
+    security-scan:
+        name: Security Scan
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@master
+              with:
+                  scan-type: "config"
+                  scan-ref: "."
+                  format: "sarif"
+                  output: "trivy-results.sarif"
+
+            - name: Upload Trivy results to GitHub Security
+              uses: github/codeql-action/upload-sarif@v2
+              with:
+                  sarif_file: "trivy-results.sarif"

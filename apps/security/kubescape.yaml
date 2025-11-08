@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubescape
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    chart: kubescape-operator
+    repoURL: https://aquasecurity.github.io/helm-charts/
+    targetRevision: 1.18.0
+    helm:
+      releaseName: kubescape
+      valuesObject:
+        capabilities:
+          continuousScan: enable
+          nodeScan: enable
+          configurationScan: enable
+          vulnerabilityScan: enable
+        account: ""
+        clusterName: aks-cluster
+        server: ""
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kubescape
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

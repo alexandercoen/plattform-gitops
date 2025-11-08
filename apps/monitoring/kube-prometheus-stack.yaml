@@ -1,0 +1,80 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 56.0.0
+    helm:
+      releaseName: kube-prometheus-stack
+      valuesObject:
+        prometheus:
+          prometheusSpec:
+            retention: 30d
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 50Gi
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+        grafana:
+          enabled: true
+          adminPassword: changeme
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - grafana.DOMAIN_PLACEHOLDER
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.DOMAIN_PLACEHOLDER
+          grafana.ini:
+            server:
+              root_url: https://grafana.DOMAIN_PLACEHOLDER
+            auth.generic_oauth:
+              enabled: true
+              name: Keycloak
+              allow_sign_up: true
+              client_id: grafana
+              client_secret: KEYCLOAK_CLIENT_SECRET
+              scopes: openid email profile
+              auth_url: https://keycloak.DOMAIN_PLACEHOLDER/realms/platform/protocol/openid-connect/auth
+              token_url: https://keycloak.DOMAIN_PLACEHOLDER/realms/platform/protocol/openid-connect/token
+              api_url: https://keycloak.DOMAIN_PLACEHOLDER/realms/platform/protocol/openid-connect/userinfo
+        alertmanager:
+          enabled: true
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: ["alertname", "cluster", "service"]
+              group_wait: 10s
+              group_interval: 10s
+              repeat_interval: 12h
+              receiver: "teams-notifications"
+            receivers:
+              - name: "teams-notifications"
+                webhook_configs:
+                  - url: "TEAMS_WEBHOOK_URL"
+                    send_resolved: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

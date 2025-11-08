@@ -1,0 +1,20 @@
+.git/
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+.DS_Store
+.vscode/
+.idea/
+
+# Sensitive files
+*.key
+*.pem
+secrets.yaml
+*.secret
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

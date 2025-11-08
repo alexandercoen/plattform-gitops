@@ -1,0 +1,28 @@
+environment: dev
+domain: dev.example.com
+clusterName: aks-dev
+
+monitoring:
+  retention: 7d
+  storageSize: 20Gi
+
+logging:
+  retention: 7d
+  storageSize: 10Gi
+
+certManager:
+  issuer: letsencrypt-staging
+
+keycloak:
+  realm: platform
+  url: https://keycloak.dev.example.com
+
+argocd:
+  url: https://argocd.dev.example.com
+
+grafana:
+  url: https://grafana.dev.example.com
+  adminPassword: changeme-dev
+
+alertmanager:
+  teamsWebhook: https://outlook.office.com/webhook/TEAMS_WEBHOOK_DEV

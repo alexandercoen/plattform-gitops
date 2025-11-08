@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tetragon
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tetragon
+  namespace: argocd
+spec:
+  project: platform
+  source:
+    chart: tetragon
+    repoURL: https://helm.cilium.io
+    targetRevision: 1.0.0
+    helm:
+      releaseName: tetragon
+      valuesObject:
+        tetragon:
+          enabled: true
+          grpc:
+            enabled: true
+            address: "unix:///var/run/cilium/tetragon/tetragon.sock"
+        export:
+          mode: "stdout"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tetragon
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,29 @@
+environment: prod
+domain: example.com
+clusterName: aks-prod
+
+monitoring:
+  retention: 30d
+  storageSize: 50Gi
+
+logging:
+  retention: 30d
+  storageSize: 30Gi
+
+certManager:
+  issuer: letsencrypt-prod
+
+keycloak:
+  realm: platform
+  url: https://keycloak.example.com
+
+argocd:
+  url: https://argocd.example.com
+  autoSync: false # Require manual approval in prod
+
+grafana:
+  url: https://grafana.example.com
+  adminPassword: changeme-prod
+
+alertmanager:
+  teamsWebhook: https://outlook.office.com/webhook/TEAMS_WEBHOOK_PROD

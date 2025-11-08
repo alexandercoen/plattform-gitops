@@ -1,0 +1,28 @@
+environment: test
+domain: test.example.com
+clusterName: aks-test
+
+monitoring:
+  retention: 14d
+  storageSize: 30Gi
+
+logging:
+  retention: 14d
+  storageSize: 20Gi
+
+certManager:
+  issuer: letsencrypt-prod
+
+keycloak:
+  realm: platform
+  url: https://keycloak.test.example.com
+
+argocd:
+  url: https://argocd.test.example.com
+
+grafana:
+  url: https://grafana.test.example.com
+  adminPassword: changeme-test
+
+alertmanager:
+  teamsWebhook: https://outlook.office.com/webhook/TEAMS_WEBHOOK_TEST
